@@ -9,14 +9,40 @@ variables:
   GOPATH: $(Agent.BuildDirectory)/go
 
 jobs:
-  - job: UnitTest
+  - job: Checks
     pool:
-      vmImage: ubuntu-16.04
+      vmImage: ubuntu-18.04
+    timeoutInMinutes: 30
+    steps:
+    - template: azp-dependencies.yml
+    - checkout: self
+    - script: make checks
+      displayName: Run checks
+
+  - job: UnitTest
+    strategy:
+      matrix:
+        Ubuntu:
+          VM_IMAGE: 'ubuntu-18.04'
+        MacOS:
+          VM_IMAGE: 'macOS-10.14'
+    pool:
+      vmImage: $(VM_IMAGE)
     timeoutInMinutes: 30
     steps:
     - template: azp-dependencies.yml
     - checkout: self
     - script: make unit-test
-      displayName: Run checks and unit test
+      displayName: Run unit test
     - script: bash <(curl https://codecov.io/bash)
       displayName: Upload coverage to Codecov
+
+  - job: BDDTest
+    pool:
+      vmImage: ubuntu-18.04
+    timeoutInMinutes: 30
+    steps:
+    - template: azp-dependencies.yml
+    - checkout: self
+    - script: make bdd-test
+      displayName: Run BDD tests
