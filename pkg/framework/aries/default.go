@@ -23,7 +23,6 @@ import (
 	"github.com/hyperledger/aries-framework-go/pkg/framework/didresolver"
 	"github.com/hyperledger/aries-framework-go/pkg/framework/didstore"
 	"github.com/hyperledger/aries-framework-go/pkg/storage"
-	"github.com/hyperledger/aries-framework-go/pkg/storage/leveldb"
 	"github.com/hyperledger/aries-framework-go/pkg/wallet"
 )
 
@@ -43,14 +42,6 @@ func transportProviderFactory() api.TransportProviderFactory {
 // didResolverProvider provides default DID resolver.
 func didResolverProvider(dbstore storage.Store) didresolver.Resolver {
 	return didresolver.New(didresolver.WithDidMethod(peer.NewDIDResolver(peer.NewDIDStore(dbstore))))
-}
-
-func storeProvider() (storage.Provider, error) {
-	storeProv, err := leveldb.NewProvider(dbPath)
-	if err != nil {
-		return nil, fmt.Errorf("leveldb provider initialization failed : %w", err)
-	}
-	return storeProv, nil
 }
 
 func inboundTransport() (didcommtrans.InboundTransport, error) {
