@@ -90,7 +90,7 @@ jobs:
 
   publish:
     name: Publish images and npm packages
-    if: github.event_name == 'push' && github.repository == 'hyperledger/aries-framework-go'
+    if: github.event_name == 'push' && github.repository == 'troyronda/aries-framework-go'
     needs: [checks, unitTest, unitTestWasm, bddTest]
     runs-on: ubuntu-18.04
     timeout-minutes: 10
@@ -116,10 +116,10 @@ jobs:
               }
               trap logout EXIT
               source ci/version_var.sh
-              echo ${{ secrets.GITHUB_TOKEN }} | docker login docker.pkg.github.com --username $GITHUB_ACTOR --password-stdin
+              echo ${{ secrets.TR_TOKEN }} | docker login docker.pkg.github.com --username $GITHUB_ACTOR --password-stdin
               make agent-rest-docker
-              docker tag aries-framework-go/agent-rest:latest  docker.pkg.github.com/hyperledger/aries-framework-go/agent-rest:$AGENT_IMAGE_TAG
-              docker push docker.pkg.github.com/hyperledger/aries-framework-go/agent-rest:$AGENT_IMAGE_TAG
+              docker tag aries-framework-go/agent-rest:latest  docker.pkg.github.com/troyronda/aries-framework-go/agent-rest:$AGENT_IMAGE_TAG
+              docker push docker.pkg.github.com/troyronda/aries-framework-go/agent-rest:$AGENT_IMAGE_TAG
 
       - name: Publish npm packages
         working-directory: ./cmd/aries-js-worker
@@ -129,4 +129,4 @@ jobs:
           npm install
           npm publish
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.TR_TOKEN }}
