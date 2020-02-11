@@ -41,6 +41,8 @@ const WORKER = _getWorker(PENDING)
  * @constructor
  */
 export const Aries = function(opts) {
+    const self = this
+
     /**
      * Test methods.
      * TODO - remove. Used for testing.
@@ -57,74 +59,74 @@ export const Aries = function(opts) {
          * @private
          */
         _echo: async function(text) {
-            return Aries._invoke("test", "echo", text, "timeout while accepting invitation")
+            return self._invoke("test", "echo", text, "timeout while accepting invitation")
         }
     }
 
     this.didexchange = {
         pkgname : "didexchange",
         createInvitation: async function(text) {
-            return Aries._invoke(this.pkgname, "CreateInvitation", text, "timeout while creating invitation")
+            return self._invoke(this.pkgname, "CreateInvitation", text, "timeout while creating invitation")
         },
         receiveInvitation: async function(text) {
-            return Aries._invoke(this.pkgname, "ReceiveInvitation", text, "timeout while receiving invitation")
+            return self._invoke(this.pkgname, "ReceiveInvitation", text, "timeout while receiving invitation")
         },
         acceptInvitation: async function(text) {
-            return Aries._invoke(this.pkgname, "AcceptInvitation", text, "timeout while accepting invitation")
+            return self._invoke(this.pkgname, "AcceptInvitation", text, "timeout while accepting invitation")
         },
         acceptExchangeRequest: async function(text) {
-            return Aries._invoke(this.pkgname, "AcceptExchangeRequest", text, "timeout while accepting exchange request")
+            return self._invoke(this.pkgname, "AcceptExchangeRequest", text, "timeout while accepting exchange request")
         },
         createImplicitInvitation: async function(text) {
-            return Aries._invoke(this.pkgname, "CreateImplicitInvitation", text, "timeout while creating implicit invitation")
+            return self._invoke(this.pkgname, "CreateImplicitInvitation", text, "timeout while creating implicit invitation")
         },
         removeConnection: async function(text) {
-            return Aries._invoke(this.pkgname, "RemoveConnection", text, "timeout while removing invitation")
+            return self._invoke(this.pkgname, "RemoveConnection", text, "timeout while removing invitation")
         },
         queryConnectionByID: async function(text) {
-            return Aries._invoke(this.pkgname, "QueryConnectionByID", text, "timeout while querying connection by ID")
+            return self._invoke(this.pkgname, "QueryConnectionByID", text, "timeout while querying connection by ID")
         },
         queryConnections: async function(text) {
-            return Aries._invoke(this.pkgname, "QueryConnections", text, "timeout while querying connections")
+            return self._invoke(this.pkgname, "QueryConnections", text, "timeout while querying connections")
         }
     }
 
     this.messaging = {
         pkgname : "messaging",
         registeredServices: async function(text) {
-            return Aries._invoke(this.pkgname, "RegisteredServices", text, "timeout while getting list of registered services")
+            return self._invoke(this.pkgname, "RegisteredServices", text, "timeout while getting list of registered services")
         },
         registerMessageService: async function(text) {
-            return Aries._invoke(this.pkgname, "RegisterMessageService", text, "timeout while registering service")
+            return self._invoke(this.pkgname, "RegisterMessageService", text, "timeout while registering service")
         },
         registerHTTPMessageService: async function(text) {
-            return Aries._invoke(this.pkgname, "RegisterHTTPMessageService", text, "timeout while registering HTTP service")
+            return self._invoke(this.pkgname, "RegisterHTTPMessageService", text, "timeout while registering HTTP service")
         },
         unregisterMessageService: async function(text) {
-            return Aries._invoke(this.pkgname, "UnregisterMessageService", text, "timeout while unregistering service")
+            return self._invoke(this.pkgname, "UnregisterMessageService", text, "timeout while unregistering service")
         },
         sendNewMessage: async function(text) {
-            return Aries._invoke(this.pkgname, "SendNewMessage", text, "timeout while sending new message")
+            return self._invoke(this.pkgname, "SendNewMessage", text, "timeout while sending new message")
         },
         sendReplyMessage: async function(text) {
-            return Aries._invoke(this.pkgname, "SendReplyMessage", text, "timeout while sending reply message")
+            return self._invoke(this.pkgname, "SendReplyMessage", text, "timeout while sending reply message")
         }
     }
 
     this.vdri = {
         pkgname : "vdri",
         createPublicDID: async function(text) {
-            return Aries._invoke(this.pkgname, "CreatePublicDID", text, "timeout while creating public DID")
+            return self._invoke(this.pkgname, "CreatePublicDID", text, "timeout while creating public DID")
         },
     }
 
     this.router = {
         pkgname : "router",
         register: async function(text) {
-            return Aries._invoke(this.pkgname, "Register", text, "timeout while registering router")
+            return self._invoke(this.pkgname, "Register", text, "timeout while registering router")
         },
         unregister: async function(text) {
-            return Aries._invoke(this.pkgname, "Unregister", text, "timeout while registering router")
+            return self._invoke(this.pkgname, "Unregister", text, "timeout while registering router")
         }
     }
 
@@ -143,7 +145,7 @@ export const Aries = function(opts) {
     this._invoke = async function(pkg, fn, arg, msgTimeout) {
         return new Promise((resolve, reject) => {
             const timer = setTimeout(_ => reject(new Error(msgTimeout)), 5000)
-            const msg = Aries._newMsg(pkg, fn, arg)
+            const msg = self._newMsg(pkg, fn, arg)
             PENDING.set(msg.id, result => {
                 clearTimeout(timer)
                 if (result.isErr) {
