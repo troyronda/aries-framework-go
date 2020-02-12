@@ -13,6 +13,8 @@ import (
 	"io/ioutil"
 	"net/http"
 
+	"github.com/rs/cors"
+
 	"github.com/hyperledger/aries-framework-go/pkg/common/log"
 	"github.com/hyperledger/aries-framework-go/pkg/didcomm/transport"
 )
@@ -123,10 +125,16 @@ func NewInbound(internalAddr, externalAddr string) (*Inbound, error) {
 
 // Start the http server.
 func (i *Inbound) Start(prov transport.Provider) error {
-	handler, err := NewInboundHandler(prov)
+	inboundHandler, err := NewInboundHandler(prov)
 	if err != nil {
 		return fmt.Errorf("HTTP server start failed: %w", err)
 	}
+
+	handler := cors.New(
+		cors.Options{
+			AllowedMethods: []string{http.MethodGet, http.MethodPost, http.MethodDelete, http.MethodHead},
+		},
+	).Handler(inboundHandler)
 
 	i.server.Handler = handler
 

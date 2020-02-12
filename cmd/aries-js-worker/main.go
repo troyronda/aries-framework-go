@@ -11,6 +11,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"syscall/js"
@@ -20,6 +21,7 @@ import (
 
 	"github.com/google/uuid"
 
+	"github.com/hyperledger/aries-framework-go/pkg/common/log"
 	"github.com/hyperledger/aries-framework-go/pkg/controller"
 	cmdctrl "github.com/hyperledger/aries-framework-go/pkg/controller/command"
 	"github.com/hyperledger/aries-framework-go/pkg/controller/webhook"
@@ -61,11 +63,15 @@ type ariesStartOpts struct {
 	Notifier             string   `json:"notifier-func-name"`
 }
 
+var logger = log.New("aries-framework/agent-wasm")
+
 // main registers the 'handleMsg' function in the JS context's global scope to receive commands.
 // results are posted back to the 'handleResult' JS function.
 func main() {
 	input := make(chan *command)
 	output := make(chan *result)
+
+	setLogLevel("DEBUG")
 
 	go pipe(input, output)
 
@@ -223,6 +229,7 @@ func startAries(c *command, pkgMap map[string]map[string]func(*command) *result)
 		return newErrResult(c.ID, "stop already called, start again to run any command"), false
 	}
 
+	logger.Infof("%v", c.Payload)
 	cOpts, err := startOpts(c.Payload)
 	if err != nil {
 		return newErrResult(c.ID, err.Error()), false
@@ -247,12 +254,12 @@ func startAries(c *command, pkgMap map[string]map[string]func(*command) *result)
 	}
 
 	var notifier webhook.Notifier
-	if cOpts.Notifier != "" {
-		notifier = &jsNotifier{topic: cOpts.Notifier}
-	}
+	notifier = &jsNotifier{topic: "sample-topic"}
+
+	logger.Infof("Options: %s, %s", cOpts.Label, cOpts.Notifier)
 
 	commands, err := controller.GetCommandHandlers(ctx, controller.WithMessageHandler(msgHandler),
-		controller.WithDefaultLabel(cOpts.Label), controller.WithNotifier(notifier))
+		controller.WithDefaultLabel("wasm agent"), controller.WithNotifier(notifier), controller.WithAutoAccept(true))
 	if err != nil {
 		return newErrResult(c.ID, err.Error()), false
 	}
@@ -327,9 +334,21 @@ func ariesOpts(opts *ariesStartOpts) ([]aries.Option, error) {
 	var options []aries.Option
 	options = append(options, aries.WithMessageServiceProvider(msgHandler))
 
+	logger.Infof("trr: %s", opts.TransportReturnRoute)
+
 	if opts.TransportReturnRoute != "" {
 		options = append(options, aries.WithTransportReturnRoute(opts.TransportReturnRoute))
 	}
+	options = append(options, aries.WithTransportReturnRoute("all"))
+
+	logger.Infof("OutboundTransport: %v", opts.OutboundTransport)
+	outbound, err := arieshttp.NewOutbound(arieshttp.WithOutboundHTTPClient(&http.Client{}))
+	if err != nil {
+		return nil, err
+	}
+
+	options = append(options, aries.WithOutboundTransports(outbound))
+	options = append(options, aries.WithOutboundTransports(ws.NewOutbound()))
 
 	for _, transport := range opts.OutboundTransport {
 		switch transport {
@@ -368,6 +387,31 @@ func (n *jsNotifier) Notify(topic string, message []byte) error {
 	}
 
 	js.Global().Call("handleResult", string(out))
+
+	return nil
+}
+
+func setLogLevel(logLevel string) error {
+	var level log.Level
+
+	switch logLevel {
+	case "INFO", "":
+		level = log.INFO
+	case "CRITICAL":
+		level = log.CRITICAL
+	case "ERROR":
+		level = log.ERROR
+	case "WARNING":
+		level = log.WARNING
+	case "DEBUG":
+		level = log.DEBUG
+	default:
+		return errors.New("invalid log level")
+	}
+
+	log.SetLevel("", level)
+
+	logger.Infof("logger level set to %s", logLevel)
 
 	return nil
 }

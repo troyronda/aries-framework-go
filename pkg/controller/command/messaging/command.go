@@ -116,7 +116,14 @@ func (o *Command) RegisterMessageService(rw io.Writer, req io.Reader) command.Er
 		return command.NewValidationError(InvalidRequestErrorCode, err)
 	}
 
-	return o.registerMessageService(&request)
+	cerr := o.registerMessageService(&request)
+	if cerr != nil {
+		return cerr
+	}
+
+	command.WriteNillableResponse(rw, nil, logger)
+
+	return nil
 }
 
 // UnregisterMessageService unregisters given message service handler registrar
@@ -136,6 +143,8 @@ func (o *Command) UnregisterMessageService(rw io.Writer, req io.Reader) command.
 	if err != nil {
 		return command.NewExecuteError(UnregisterMsgSvcError, err)
 	}
+
+	command.WriteNillableResponse(rw, nil, logger)
 
 	return nil
 }
@@ -176,19 +185,30 @@ func (o *Command) SendNewMessage(rw io.Writer, req io.Reader) command.Error {
 			return command.NewExecuteError(SendMsgError, err)
 		}
 
-		return o.sendMessageToConnection(request.MessageBody, conn)
-	}
-
-	if request.TheirDID != "" {
+		cerr := o.sendMessageToConnection(request.MessageBody, conn)
+		if cerr != nil {
+			return cerr
+		}
+	} else if request.TheirDID != "" {
 		conn, err := o.getConnectionByTheirDID(request.TheirDID)
 		if err != nil {
 			return command.NewExecuteError(SendMsgError, err)
 		}
 
-		return o.sendMessageToConnection(request.MessageBody, conn)
+		cerr := o.sendMessageToConnection(request.MessageBody, conn)
+		if cerr != nil {
+			return cerr
+		}
+	} else {
+		cerr := o.sendMessageToDestination(request.MessageBody, request.ServiceEndpointDestination)
+		if cerr != nil {
+			return cerr
+		}
 	}
 
-	return o.sendMessageToDestination(request.MessageBody, request.ServiceEndpointDestination)
+	command.WriteNillableResponse(rw, nil, logger)
+
+	return nil
 }
 
 // SendReplyMessage sends reply to existing message
