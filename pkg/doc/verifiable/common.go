@@ -251,6 +251,34 @@ func safeStringValue(v interface{}) string {
 	return v.(string)
 }
 
+func compactRawCreds(creds []MarshalledCredential) ([]byte, error) {
+	switch len(creds) {
+	case 0:
+		return nil, nil
+	case 1:
+		return creds[0], nil
+	default:
+		credMaps := make([]json.RawMessage, 0, len(creds))
+
+		for _, c := range creds {
+			credMaps = append(credMaps, json.RawMessage(c))
+		}
+
+		return json.Marshal(credMaps)
+	}
+}
+
+func credentialsToRaw(creds []*Credential) ([]byte, error) {
+	switch len(creds) {
+	case 0:
+		return nil, nil
+	case 1:
+		return json.Marshal(creds[0])
+	default:
+		return json.Marshal(creds)
+	}
+}
+
 func proofsToRaw(proofs []Proof) ([]byte, error) {
 	switch len(proofs) {
 	case 0:

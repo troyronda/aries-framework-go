@@ -12,7 +12,6 @@ import (
 
 	"github.com/xeipuuv/gojsonschema"
 
-	"github.com/hyperledger/aries-framework-go/pkg/doc/jose"
 	"github.com/hyperledger/aries-framework-go/pkg/doc/jwt"
 	"github.com/hyperledger/aries-framework-go/pkg/doc/signature/verifier"
 )
@@ -172,7 +171,8 @@ type Presentation struct {
 	CustomContext []interface{}
 	ID            string
 	Type          []string
-	credentials   []interface{}
+	credentials   []*Credential
+	rawCredentials []MarshalledCredential
 	Holder        string
 	Proofs        []Proof
 }
@@ -199,50 +199,46 @@ func (vp *Presentation) JWTClaims(audience []string, minimizeVP bool) (*JWTPresC
 }
 
 // Credentials returns current credentials of presentation.
-func (vp *Presentation) Credentials() []interface{} {
+//
+// Note: Do not modify the returned credentials. You must use SetCredentials to set the credentials into the VP.
+func (vp *Presentation) Credentials() []*Credential {
 	return vp.credentials
 }
 
 // SetCredentials defines credentials of presentation.
 // The credential could be string/byte (probably serialized JWT) or Credential structure.
 func (vp *Presentation) SetCredentials(creds ...interface{}) error {
-	var vpCreds []interface{}
-
-	convertToVC := func(vcStr string) (interface{}, error) {
-		// Check if passed VC is correct one.
-		vc, err := NewUnverifiedCredential([]byte(vcStr))
-		if err != nil {
-			return nil, fmt.Errorf("check VC: %w", err)
-		}
-
-		// If VC was passed in JWT form, left it as is. Otherwise, return parsed VC
-		if jose.IsCompactJWS(vcStr) {
-			return vcStr, nil
-		}
-
-		return vc, nil
-	}
+	var vpCreds []*Credential
+	var vpCredsRaw []MarshalledCredential
 
 	for i := range creds {
 		switch rawVC := creds[i].(type) {
 		case *Credential:
+			cj, err := rawVC.MarshalJSON()
+			if err != nil {
+				return err
+			}
+
 			vpCreds = append(vpCreds, rawVC)
+			vpCredsRaw = append(vpCredsRaw, cj)
 
 		case []byte:
-			vc, err := convertToVC(string(rawVC))
+			vc, err := NewUnverifiedCredential(rawVC)
 			if err != nil {
 				return err
 			}
 
 			vpCreds = append(vpCreds, vc)
+			vpCredsRaw = append(vpCredsRaw, rawVC)
 
 		case string:
-			vc, err := convertToVC(rawVC)
+			vc, err := NewUnverifiedCredential([]byte(rawVC))
 			if err != nil {
 				return err
 			}
 
 			vpCreds = append(vpCreds, vc)
+			vpCredsRaw = append(vpCredsRaw, []byte(rawVC))
 
 		default:
 			return errors.New("unsupported credential format")
@@ -250,36 +246,32 @@ func (vp *Presentation) SetCredentials(creds ...interface{}) error {
 	}
 
 	vp.credentials = vpCreds
+	vp.rawCredentials = vpCredsRaw
 
 	return nil
+}
+
+func (vp *Presentation) setCredentialsFromRaw(rawCreds []json.RawMessage) error {
+	var creds []interface{}
+	for _, c := range rawCreds {
+		creds = append(creds, []byte(c))
+	}
+
+	return vp.SetCredentials(creds...)
 }
 
 // MarshalledCredentials provides marshalled credentials enclosed into Presentation in raw byte array format.
 // They can be used to decode Credentials into struct.
 func (vp *Presentation) MarshalledCredentials() ([]MarshalledCredential, error) {
-	mCreds := make([]MarshalledCredential, len(vp.credentials))
-
-	for i := range vp.credentials {
-		cred := vp.credentials[i]
-		switch c := cred.(type) {
-		case string:
-			mCreds[i] = MarshalledCredential(c)
-		case []byte:
-			mCreds[i] = c
-		default:
-			credBytes, err := json.Marshal(cred)
-			if err != nil {
-				return nil, fmt.Errorf("marshal credentials from presentation: %w", err)
-			}
-
-			mCreds[i] = credBytes
-		}
-	}
-
-	return mCreds, nil
+	return vp.rawCredentials, nil
 }
 
 func (vp *Presentation) raw() (*rawPresentation, error) {
+	creds, err := compactRawCreds(vp.rawCredentials)
+	if err != nil {
+		return nil, err
+	}
+
 	proof, err := proofsToRaw(vp.Proofs)
 	if err != nil {
 		return nil, err
@@ -291,7 +283,7 @@ func (vp *Presentation) raw() (*rawPresentation, error) {
 		Context:    vp.Context,
 		ID:         vp.ID,
 		Type:       typesToRaw(vp.Type),
-		Credential: vp.credentials,
+		Credential: creds,
 		Holder:     vp.Holder,
 		Proof:      proof,
 	}, nil
@@ -302,7 +294,7 @@ type rawPresentation struct {
 	Context    interface{}     `json:"@context,omitempty"`
 	ID         string          `json:"id,omitempty"`
 	Type       interface{}     `json:"type,omitempty"`
-	Credential interface{}     `json:"verifiableCredential"`
+	Credential json.RawMessage `json:"verifiableCredential"`
 	Holder     string          `json:"holder,omitempty"`
 	Proof      json.RawMessage `json:"proof,omitempty"`
 }
@@ -371,7 +363,7 @@ func NewPresentation(vpData []byte, opts ...PresentationOpt) (*Presentation, err
 		return nil, err
 	}
 
-	return newPresentation(vpRaw, vpOpts)
+	return newPresentation(vpRaw)
 }
 
 // NewUnverifiedPresentation decodes Verifiable Presentation from bytes which could be marshalled JSON or
@@ -388,10 +380,10 @@ func NewUnverifiedPresentation(vpBytes []byte) (*Presentation, error) {
 		return nil, err
 	}
 
-	return newPresentation(vpRaw, vpOpts)
+	return newPresentation(vpRaw)
 }
 
-func newPresentation(vpRaw *rawPresentation, vpOpts *presentationOpts) (*Presentation, error) {
+func newPresentation(vpRaw *rawPresentation) (*Presentation, error) {
 	types, err := decodeType(vpRaw.Type)
 	if err != nil {
 		return nil, fmt.Errorf("fill presentation types from raw: %w", err)
@@ -402,7 +394,7 @@ func newPresentation(vpRaw *rawPresentation, vpOpts *presentationOpts) (*Present
 		return nil, fmt.Errorf("fill presentation contexts from raw: %w", err)
 	}
 
-	creds, err := decodeCredentials(vpRaw.Credential, vpOpts)
+	rawCreds, err := jsonRawSlice(vpRaw.Credential)
 	if err != nil {
 		return nil, fmt.Errorf("decode credentials of presentation: %w", err)
 	}
@@ -412,76 +404,35 @@ func newPresentation(vpRaw *rawPresentation, vpOpts *presentationOpts) (*Present
 		return nil, fmt.Errorf("fill credential proof from raw: %w", err)
 	}
 
-	return &Presentation{
-		Context:       context,
-		CustomContext: customContext,
-		ID:            vpRaw.ID,
-		Type:          types,
-		credentials:   creds,
-		Holder:        vpRaw.Holder,
-		Proofs:        proofs,
-	}, nil
+	p := Presentation{
+		Context:        context,
+		CustomContext:  customContext,
+		ID:             vpRaw.ID,
+		Type:           types,
+		Holder:         vpRaw.Holder,
+		Proofs:         proofs,
+	}
+
+	err = p.setCredentialsFromRaw(rawCreds)
+	if err != nil {
+		return nil, fmt.Errorf("fill credential proof from raw: %w", err)
+	}
+
+	return &p, nil
 }
 
-// decodeCredentials decodes credential(s) embedded into presentation.
-// It must be one of the following:
-// 1) string - it could be credential decoded into e.g. JWS.
-// 2) the same as 1) but as array - e.g. zero ore more JWS
-// 3) struct (should be map[string]interface{}) representing credential data model
-// 4) the same as 3) but as array - i.e. zero or more credentials structs.
-func decodeCredentials(rawCred interface{}, opts *presentationOpts) ([]interface{}, error) {
-	// Accept the case when VP does not have any VCs.
-	if rawCred == nil {
+func jsonRawSlice(j json.RawMessage) ([]json.RawMessage, error) {
+	if j == nil {
 		return nil, nil
 	}
 
-	marshalSingleCredFn := func(cred interface{}) (interface{}, error) {
-		// Check the case when VC is defined in string format (e.g. JWT).
-		// Decode credential and keep result of decoding.
-		if sCred, ok := cred.(string); ok {
-			bCred := []byte(sCred)
-
-			credDecoded, err := decodeRaw(bCred, mapOpts(opts))
-			if err != nil {
-				return nil, fmt.Errorf("decode credential of presentation: %w", err)
-			}
-
-			return credDecoded, nil
-		}
-
-		// return credential in a structure format as is
-		return cred, nil
+	var jsonArray []json.RawMessage
+	err := json.Unmarshal(j, &jsonArray)
+	if err == nil {
+		return jsonArray, nil
 	}
 
-	switch cred := rawCred.(type) {
-	case []interface{}:
-		// Accept the case when VP does not have any VCs.
-		if len(cred) == 0 {
-			return nil, nil
-		}
-
-		// 1 or more credentials
-		creds := make([]interface{}, len(cred))
-
-		for i := range cred {
-			c, err := marshalSingleCredFn(cred[i])
-			if err != nil {
-				return nil, err
-			}
-
-			creds[i] = c
-		}
-
-		return creds, nil
-	default:
-		// single credential
-		c, err := marshalSingleCredFn(cred)
-		if err != nil {
-			return nil, err
-		}
-
-		return []interface{}{c}, nil
-	}
+	return []json.RawMessage{j}, nil
 }
 
 func mapOpts(vpOpts *presentationOpts) *credentialOpts {
