@@ -1,0 +1,21 @@
+#
+# Copyright SecureKey Technologies Inc. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+name: sync
+on:
+  schedule:
+  - cron:  "*/15 * * * *"
+jobs:
+  repo-sync:
+    runs-on: ubuntu-18.04
+    steps:
+    - uses: actions/checkout@v1
+    - name: repo-sync
+      uses: repo-sync/github-sync@v2
+      with:
+        source_repo: "https://github.com/hyperledger/aries-framework-go.git"
+        source_branch: "master"
+        destination_branch: "afg-publish"
+        github_token: ${{ secrets.GH_SYNC_TOKEN }}
