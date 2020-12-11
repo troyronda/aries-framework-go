@@ -12,8 +12,8 @@ replace (
 
 require (
 	github.com/cenkalti/backoff/v4 v4.1.0
-	github.com/gorilla/mux v1.7.3
-	github.com/hyperledger/aries-framework-go v0.1.5-0.20201017112511-5734c20820a9
+	github.com/gorilla/mux v1.8.0
+	github.com/hyperledger/aries-framework-go v0.1.5-0.20201017112511-5734c20820a9 // indirect
 	github.com/hyperledger/aries-framework-go/component/storage/leveldb v0.0.0-00010101000000-000000000000
 	github.com/rs/cors v1.7.0
 	github.com/spf13/cobra v1.0.0
