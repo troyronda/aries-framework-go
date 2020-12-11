@@ -15,8 +15,8 @@ require (
 	github.com/fsouza/go-dockerclient v1.6.1
 	github.com/gogo/protobuf v1.3.1 // indirect
 	github.com/google/uuid v1.1.2
-	github.com/gorilla/mux v1.7.3
-	github.com/hyperledger/aries-framework-go v0.1.5-0.20201017112511-5734c20820a9
+	github.com/gorilla/mux v1.8.0
+	github.com/hyperledger/aries-framework-go v0.1.5-0.20201017112511-5734c20820a9 // indirect
 	github.com/hyperledger/aries-framework-go/component/storage/leveldb v0.0.0-00010101000000-000000000000
 	github.com/morikuni/aec v1.0.0 // indirect
 	github.com/onsi/ginkgo v1.10.1 // indirect
