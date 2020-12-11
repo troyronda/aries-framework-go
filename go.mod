@@ -21,7 +21,7 @@ require (
 	github.com/kilic/bls12-381 v0.0.0-20200820230200-6b2c19996391
 	github.com/minio/sha256-simd v0.1.1 // indirect
 	github.com/mitchellh/mapstructure v1.1.2
-	github.com/multiformats/go-multibase v0.0.1
+	github.com/multiformats/go-multibase v0.0.3
 	github.com/multiformats/go-multihash v0.0.13
 	github.com/piprate/json-gold v0.3.0
 	github.com/pkg/errors v0.9.1
