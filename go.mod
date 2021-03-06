@@ -39,7 +39,7 @@ require (
 	golang.org/x/crypto v0.0.0-20201002170205-7f63de1d35b0
 	golang.org/x/sys v0.0.0-20201211090839-8ad439b19e0f // indirect
 	google.golang.org/protobuf v1.25.0
-	nhooyr.io/websocket v1.8.3
+	nhooyr.io/websocket v1.8.6
 )
 
 go 1.15
