@@ -1,0 +1,60 @@
+#
+# Copyright SecureKey Technologies Inc. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+version: 2
+updates:
+  - package-ecosystem: "gomod"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    open-pull-requests-limit: 0
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    open-pull-requests-limit: 0
+
+  - package-ecosystem: "gomod"
+    directory: "/component/storage/jsindexeddb"
+    schedule:
+      interval: "daily"
+    open-pull-requests-limit: 0
+
+  - package-ecosystem: "gomod"
+    directory: "/component/storage/leveldb"
+    schedule:
+      interval: "daily"
+    open-pull-requests-limit: 0
+
+  - package-ecosystem: "gomod"
+    directory: "/cmd/aries-agent-mobile"
+    schedule:
+      interval: "daily"
+    open-pull-requests-limit: 0
+
+  - package-ecosystem: "gomod"
+    directory: "/cmd/aries-agent-rest"
+    schedule:
+      interval: "daily"
+    open-pull-requests-limit: 0
+ 
+  - package-ecosystem: "gomod"
+    directory: "/cmd/aries-js-worker"
+    schedule:
+      interval: "daily"
+    open-pull-requests-limit: 0
+
+  - package-ecosystem: "npm"
+    directory: "/cmd/aries-js-worker"
+    schedule:
+      interval: "daily"
+    open-pull-requests-limit: 0
+
+  - package-ecosystem: "gomod"
+    directory: "/test/bdd"
+    schedule:
+      interval: "daily"
+    open-pull-requests-limit: 0
