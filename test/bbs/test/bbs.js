@@ -16,6 +16,7 @@ const {documentLoaders} = require("jsonld");
 const bbsContext = JSON.parse(fs.readFileSync("data/context/ldp-bbs2020.jsonld", 'utf-8'));
 const citizenVocab = JSON.parse(fs.readFileSync("data/context/citizenship.jsonld", 'utf-8'));
 const vaccinationVocab = JSON.parse(fs.readFileSync("data/context/vaccination-v1.jsonld", 'utf-8'));
+const revocationVocab = JSON.parse(fs.readFileSync("data/context/revocation-v1.jsonld", 'utf-8'));
 const vcexampleVocab = JSON.parse(fs.readFileSync("data/context/vcexample.jsonld", 'utf-8'));
 const keyPairOptions = JSON.parse(fs.readFileSync("data/keyPair.json", 'utf-8'));
 const keyPair2Options = JSON.parse(fs.readFileSync("data/keyPair2.json", 'utf-8'));
@@ -39,16 +40,17 @@ const documents = {
         "id": "did:key:zUC724vuGvHpnCGFG1qqpXb81SiBLu3KLSqVzenwEZNPoY35i2Bscb8DLaVwHvRFs6F2NkNNXRcPWvqnPDUd9ukdjLkjZd3u9zzL4wDZDUpkPAatLDGLEYVo8kkAzuAKJQMr7N2",
         "assertionMethod": ["did:key:zUC724vuGvHpnCGFG1qqpXb81SiBLu3KLSqVzenwEZNPoY35i2Bscb8DLaVwHvRFs6F2NkNNXRcPWvqnPDUd9ukdjLkjZd3u9zzL4wDZDUpkPAatLDGLEYVo8kkAzuAKJQMr7N2#zUC724vuGvHpnCGFG1qqpXb81SiBLu3KLSqVzenwEZNPoY35i2Bscb8DLaVwHvRFs6F2NkNNXRcPWvqnPDUd9ukdjLkjZd3u9zzL4wDZDUpkPAatLDGLEYVo8kkAzuAKJQMr7N2"]
     },
-    "did:key:zUC72trFXko7eccfAeLJHQwJT7wjVuTkfjbTfmDsLfyQEevrQtrWAe3pvc63xH2LsxbqpBAi6T4fdEpfQMmLDL148zZaY6eEbTmK2SaEQsvvQppas93pXs1GgazkSgemnGTWbWJ#zUC72trFXko7eccfAeLJHQwJT7wjVuTkfjbTfmDsLfyQEevrQtrWAe3pvc63xH2LsxbqpBAi6T4fdEpfQMmLDL148zZaY6eEbTmK2SaEQsvvQppas93pXs1GgazkSgemnGTWbWJ": keyPair3Options,
-    "did:key:zUC72trFXko7eccfAeLJHQwJT7wjVuTkfjbTfmDsLfyQEevrQtrWAe3pvc63xH2LsxbqpBAi6T4fdEpfQMmLDL148zZaY6eEbTmK2SaEQsvvQppas93pXs1GgazkSgemnGTWbWJ": {
+    "did:key:zUC72c7u4BYVmfYinDceXkNAwzPEyuEE23kUmJDjLy8495KH3pjLwFhae1Fww9qxxRdLnS2VNNwni6W3KbYZKsicDtiNNEp76fYWR6HCD8jAz6ihwmLRjcHH6kB294Xfg1SL1qQ#zUC72c7u4BYVmfYinDceXkNAwzPEyuEE23kUmJDjLy8495KH3pjLwFhae1Fww9qxxRdLnS2VNNwni6W3KbYZKsicDtiNNEp76fYWR6HCD8jAz6ihwmLRjcHH6kB294Xfg1SL1qQ": keyPair3Options,
+    "did:key:zUC72c7u4BYVmfYinDceXkNAwzPEyuEE23kUmJDjLy8495KH3pjLwFhae1Fww9qxxRdLnS2VNNwni6W3KbYZKsicDtiNNEp76fYWR6HCD8jAz6ihwmLRjcHH6kB294Xfg1SL1qQ": {
         "@context": "https://w3id.org/security/v2",
-        "id": "did:key:zUC72trFXko7eccfAeLJHQwJT7wjVuTkfjbTfmDsLfyQEevrQtrWAe3pvc63xH2LsxbqpBAi6T4fdEpfQMmLDL148zZaY6eEbTmK2SaEQsvvQppas93pXs1GgazkSgemnGTWbWJ",
-        "assertionMethod": ["did:key:zUC72trFXko7eccfAeLJHQwJT7wjVuTkfjbTfmDsLfyQEevrQtrWAe3pvc63xH2LsxbqpBAi6T4fdEpfQMmLDL148zZaY6eEbTmK2SaEQsvvQppas93pXs1GgazkSgemnGTWbWJ#zUC72trFXko7eccfAeLJHQwJT7wjVuTkfjbTfmDsLfyQEevrQtrWAe3pvc63xH2LsxbqpBAi6T4fdEpfQMmLDL148zZaY6eEbTmK2SaEQsvvQppas93pXs1GgazkSgemnGTWbWJ"]
+        "id": "did:key:zUC72c7u4BYVmfYinDceXkNAwzPEyuEE23kUmJDjLy8495KH3pjLwFhae1Fww9qxxRdLnS2VNNwni6W3KbYZKsicDtiNNEp76fYWR6HCD8jAz6ihwmLRjcHH6kB294Xfg1SL1qQ",
+        "assertionMethod": ["did:key:zUC72c7u4BYVmfYinDceXkNAwzPEyuEE23kUmJDjLy8495KH3pjLwFhae1Fww9qxxRdLnS2VNNwni6W3KbYZKsicDtiNNEp76fYWR6HCD8jAz6ihwmLRjcHH6kB294Xfg1SL1qQ#zUC72c7u4BYVmfYinDceXkNAwzPEyuEE23kUmJDjLy8495KH3pjLwFhae1Fww9qxxRdLnS2VNNwni6W3KbYZKsicDtiNNEp76fYWR6HCD8jAz6ihwmLRjcHH6kB294Xfg1SL1qQ"]
     },
     "https://w3id.org/security/bbs/v1": bbsContext,
     "https://w3id.org/citizenship/v1": citizenVocab,
     "https://w3id.org/vaccination/v1": vaccinationVocab,
-    "https://www.w3.org/2018/credentials/examples/v1": vcexampleVocab
+    "https://www.w3.org/2018/credentials/examples/v1": vcexampleVocab,
+    "https://w3id.org/vc-revocation-list-2020/v1": revocationVocab
 };
 
 const customDocLoader = (url) => {
@@ -296,25 +298,6 @@ describe("BBS+ interop fixtures", function () {
         });
         assert.isTrue(verified.verified);
     })    
-
-    it('failing case: verify with Aries', async function () {
-        const vc = JSON.parse(fs.readFileSync("data/failing.json", 'utf-8'));
-
-        await verifyProofAries(keyPair3Options.publicKeyBase58, JSON.stringify(vc));
-    })    
-
-    it('failing case: verify with Mattr', async function () {
-        const vc = JSON.parse(fs.readFileSync("data/failing.json", 'utf-8'));
-
-        let verified = await verifyMattr(vc, {
-            suite: new BbsBlsSignatureProof2020(),
-            purpose: new purposes.AssertionProofPurpose(),
-            documentLoader
-        });
-
-        assert.isTrue(verified.verified);
-    })    
-
 })
 
 function sleep(ms) {

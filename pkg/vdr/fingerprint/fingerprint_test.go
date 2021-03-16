@@ -158,7 +158,7 @@ func TestDIDKeyEd25519(t *testing.T) {
 }
 
 func TestExtract(t *testing.T) {
-	const k = "did:key:zUC72trFXko7eccfAeLJHQwJT7wjVuTkfjbTfmDsLfyQEevrQtrWAe3pvc63xH2LsxbqpBAi6T4fdEpfQMmLDL148zZaY6eEbTmK2SaEQsvvQppas93pXs1GgazkSgemnGTWbWJ"
+	const k = "did:key:zUC72c7u4BYVmfYinDceXkNAwzPEyuEE23kUmJDjLy8495KH3pjLwFhae1Fww9qxxRdLnS2VNNwni6W3KbYZKsicDtiNNEp76fYWR6HCD8jAz6ihwmLRjcHH6kB294Xfg1SL1qQ"
 	kBytes, err := PubKeyFromDIDKey(k)
 	require.NoError(t, err)
 
