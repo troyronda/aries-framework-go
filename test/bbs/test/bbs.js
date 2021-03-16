@@ -15,11 +15,16 @@ const {documentLoaders} = require("jsonld");
 
 const bbsContext = JSON.parse(fs.readFileSync("data/context/ldp-bbs2020.jsonld", 'utf-8'));
 const citizenVocab = JSON.parse(fs.readFileSync("data/context/citizenship.jsonld", 'utf-8'));
+const vaccinationVocab = JSON.parse(fs.readFileSync("data/context/vaccination-v1.jsonld", 'utf-8'));
 const vcexampleVocab = JSON.parse(fs.readFileSync("data/context/vcexample.jsonld", 'utf-8'));
 const keyPairOptions = JSON.parse(fs.readFileSync("data/keyPair.json", 'utf-8'));
 const keyPair2Options = JSON.parse(fs.readFileSync("data/keyPair2.json", 'utf-8'));
+const keyPair3Options = JSON.parse(fs.readFileSync("data/keyPair3.json", 'utf-8'));
 const revealDocument = JSON.parse(fs.readFileSync("data/revealDocument.json", 'utf-8'));
+const vaccineFrame = JSON.parse(fs.readFileSync("data/vaccineFrame.json", 'utf-8'));
+const vaccineFrame2 = JSON.parse(fs.readFileSync("data/vaccineFrame2.json", 'utf-8'));
 const case19RevealDocument = JSON.parse(fs.readFileSync("data/case-19-reveal.json", 'utf-8'));
+const vaccineVC = JSON.parse(fs.readFileSync("data/vaccineEvent.json", 'utf-8'));
 
 const documents = {
     "did:example:489398593#test": keyPairOptions,
@@ -34,8 +39,15 @@ const documents = {
         "id": "did:key:zUC724vuGvHpnCGFG1qqpXb81SiBLu3KLSqVzenwEZNPoY35i2Bscb8DLaVwHvRFs6F2NkNNXRcPWvqnPDUd9ukdjLkjZd3u9zzL4wDZDUpkPAatLDGLEYVo8kkAzuAKJQMr7N2",
         "assertionMethod": ["did:key:zUC724vuGvHpnCGFG1qqpXb81SiBLu3KLSqVzenwEZNPoY35i2Bscb8DLaVwHvRFs6F2NkNNXRcPWvqnPDUd9ukdjLkjZd3u9zzL4wDZDUpkPAatLDGLEYVo8kkAzuAKJQMr7N2#zUC724vuGvHpnCGFG1qqpXb81SiBLu3KLSqVzenwEZNPoY35i2Bscb8DLaVwHvRFs6F2NkNNXRcPWvqnPDUd9ukdjLkjZd3u9zzL4wDZDUpkPAatLDGLEYVo8kkAzuAKJQMr7N2"]
     },
+    "did:key:zUC72trFXko7eccfAeLJHQwJT7wjVuTkfjbTfmDsLfyQEevrQtrWAe3pvc63xH2LsxbqpBAi6T4fdEpfQMmLDL148zZaY6eEbTmK2SaEQsvvQppas93pXs1GgazkSgemnGTWbWJ#zUC72trFXko7eccfAeLJHQwJT7wjVuTkfjbTfmDsLfyQEevrQtrWAe3pvc63xH2LsxbqpBAi6T4fdEpfQMmLDL148zZaY6eEbTmK2SaEQsvvQppas93pXs1GgazkSgemnGTWbWJ": keyPair3Options,
+    "did:key:zUC72trFXko7eccfAeLJHQwJT7wjVuTkfjbTfmDsLfyQEevrQtrWAe3pvc63xH2LsxbqpBAi6T4fdEpfQMmLDL148zZaY6eEbTmK2SaEQsvvQppas93pXs1GgazkSgemnGTWbWJ": {
+        "@context": "https://w3id.org/security/v2",
+        "id": "did:key:zUC72trFXko7eccfAeLJHQwJT7wjVuTkfjbTfmDsLfyQEevrQtrWAe3pvc63xH2LsxbqpBAi6T4fdEpfQMmLDL148zZaY6eEbTmK2SaEQsvvQppas93pXs1GgazkSgemnGTWbWJ",
+        "assertionMethod": ["did:key:zUC72trFXko7eccfAeLJHQwJT7wjVuTkfjbTfmDsLfyQEevrQtrWAe3pvc63xH2LsxbqpBAi6T4fdEpfQMmLDL148zZaY6eEbTmK2SaEQsvvQppas93pXs1GgazkSgemnGTWbWJ#zUC72trFXko7eccfAeLJHQwJT7wjVuTkfjbTfmDsLfyQEevrQtrWAe3pvc63xH2LsxbqpBAi6T4fdEpfQMmLDL148zZaY6eEbTmK2SaEQsvvQppas93pXs1GgazkSgemnGTWbWJ"]
+    },
     "https://w3id.org/security/bbs/v1": bbsContext,
     "https://w3id.org/citizenship/v1": citizenVocab,
+    "https://w3id.org/vaccination/v1": vaccinationVocab,
     "https://www.w3.org/2018/credentials/examples/v1": vcexampleVocab
 };
 
@@ -147,7 +159,7 @@ describe("BBS+ interop fixtures", function () {
 
     it('case 18->19: derive signature proof with Mattr and verify with Aries', async function () {
         const vc = JSON.parse(fs.readFileSync("data/case-18.json", 'utf-8'));
-        const keyPair = await new Bls12381G2KeyPair(keyPairOptions);
+        const keyPair = await new Bls12381G2KeyPair(keyPair2Options);
 
         const nonce = "lEixQKDQvRecCifKl789TQj+Ii6YWDLSwn3AxR0VpPJ1QV5htod/0VCchVf1zVM0y2E=";
         let nonceBuffer = Buffer.from(nonce, "base64")
@@ -160,6 +172,149 @@ describe("BBS+ interop fixtures", function () {
 
         await verifyProofAries(keyPair2Options.publicKeyBase58, JSON.stringify(derivedProof));
     })    
+
+    it('vaccine: derive signature proof with Aries and verify with Mattr', async function () {
+        const vc = JSON.parse(fs.readFileSync("data/vaccineEvent.json", 'utf-8'));
+
+        const nonce = "lEixQKDQvRecCifKl789TQj+Ii6YWDLSwn3AxR0VpPJ1QV5htod/0VCchVf1zVM0y2E=";
+
+        let derivedProof = await deriveProofAries(keyPair3Options.publicKeyBase58, JSON.stringify(vc), JSON.stringify(vaccineFrame), nonce);
+
+        let verified = await verifyMattr(JSON.parse(derivedProof), {
+            suite: new BbsBlsSignatureProof2020(),
+            purpose: new purposes.AssertionProofPurpose(),
+            documentLoader
+        });
+        assert.isTrue(verified.verified);
+    })
+
+    it('vaccine: derive signature proof with Mattr and verify with Aries', async function () {
+        const vc = JSON.parse(fs.readFileSync("data/vaccineEvent.json", 'utf-8'));
+        const keyPair = await new Bls12381G2KeyPair(keyPair3Options);
+
+        const nonce = "lEixQKDQvRecCifKl789TQj+Ii6YWDLSwn3AxR0VpPJ1QV5htod/0VCchVf1zVM0y2E=";
+        let nonceBuffer = Buffer.from(nonce, "base64")
+
+        const derivedProof = await deriveProofMattr(vc, vaccineFrame, {
+            suite: new BbsBlsSignatureProof2020(),
+            nonce: new Uint8Array(nonceBuffer),
+            documentLoader
+        });
+
+        await verifyProofAries(keyPair3Options.publicKeyBase58, JSON.stringify(derivedProof));
+    })    
+
+    it('vaccine: derive signature proof with Aries and verify with Aries', async function () {
+        const vc = JSON.parse(fs.readFileSync("data/vaccineEvent.json", 'utf-8'));
+
+        const nonce = "lEixQKDQvRecCifKl789TQj+Ii6YWDLSwn3AxR0VpPJ1QV5htod/0VCchVf1zVM0y2E=";
+
+        let derivedProof = await deriveProofAries(keyPair3Options.publicKeyBase58, JSON.stringify(vc), JSON.stringify(vaccineFrame), nonce);
+
+        await verifyProofAries(keyPair3Options.publicKeyBase58, derivedProof);
+    })
+
+    it('vaccine: derive signature proof with Mattr and verify with Mattr', async function () {
+        const vc = JSON.parse(fs.readFileSync("data/vaccineEvent.json", 'utf-8'));
+        const keyPair = await new Bls12381G2KeyPair(keyPair3Options);
+
+        const nonce = "lEixQKDQvRecCifKl789TQj+Ii6YWDLSwn3AxR0VpPJ1QV5htod/0VCchVf1zVM0y2E=";
+        let nonceBuffer = Buffer.from(nonce, "base64")
+
+        const derivedProof = await deriveProofMattr(vc, vaccineFrame, {
+            suite: new BbsBlsSignatureProof2020(),
+            nonce: new Uint8Array(nonceBuffer),
+            documentLoader
+        });
+
+        let verified = await verifyMattr(derivedProof, {
+            suite: new BbsBlsSignatureProof2020(),
+            purpose: new purposes.AssertionProofPurpose(),
+            documentLoader
+        });
+        assert.isTrue(verified.verified);
+    })    
+
+    it('vaccine2: derive signature proof with Aries and verify with Mattr', async function () {
+        const vc = JSON.parse(fs.readFileSync("data/vaccineEvent.json", 'utf-8'));
+
+        const nonce = "lEixQKDQvRecCifKl789TQj+Ii6YWDLSwn3AxR0VpPJ1QV5htod/0VCchVf1zVM0y2E=";
+
+        let derivedProof = await deriveProofAries(keyPair3Options.publicKeyBase58, JSON.stringify(vc), JSON.stringify(vaccineFrame2), nonce);
+
+        let verified = await verifyMattr(JSON.parse(derivedProof), {
+            suite: new BbsBlsSignatureProof2020(),
+            purpose: new purposes.AssertionProofPurpose(),
+            documentLoader
+        });
+        assert.isTrue(verified.verified);
+    })
+
+    it('vaccine2: derive signature proof with Mattr and verify with Aries', async function () {
+        const vc = JSON.parse(fs.readFileSync("data/vaccineEvent.json", 'utf-8'));
+        const keyPair = await new Bls12381G2KeyPair(keyPair3Options);
+
+        const nonce = "lEixQKDQvRecCifKl789TQj+Ii6YWDLSwn3AxR0VpPJ1QV5htod/0VCchVf1zVM0y2E=";
+        let nonceBuffer = Buffer.from(nonce, "base64")
+
+        const derivedProof = await deriveProofMattr(vc, vaccineFrame2, {
+            suite: new BbsBlsSignatureProof2020(),
+            nonce: new Uint8Array(nonceBuffer),
+            documentLoader
+        });
+
+        await verifyProofAries(keyPair3Options.publicKeyBase58, JSON.stringify(derivedProof));
+    })    
+
+    it('vaccine2: derive signature proof with Aries and verify with Aries', async function () {
+        const vc = JSON.parse(fs.readFileSync("data/vaccineEvent.json", 'utf-8'));
+
+        const nonce = "lEixQKDQvRecCifKl789TQj+Ii6YWDLSwn3AxR0VpPJ1QV5htod/0VCchVf1zVM0y2E=";
+
+        let derivedProof = await deriveProofAries(keyPair3Options.publicKeyBase58, JSON.stringify(vc), JSON.stringify(vaccineFrame2), nonce);
+
+        await verifyProofAries(keyPair3Options.publicKeyBase58, derivedProof);
+    })
+
+    it('vaccine2: derive signature proof with Mattr and verify with Mattr', async function () {
+        const vc = JSON.parse(fs.readFileSync("data/vaccineEvent.json", 'utf-8'));
+        const keyPair = await new Bls12381G2KeyPair(keyPair3Options);
+
+        const nonce = "lEixQKDQvRecCifKl789TQj+Ii6YWDLSwn3AxR0VpPJ1QV5htod/0VCchVf1zVM0y2E=";
+        let nonceBuffer = Buffer.from(nonce, "base64")
+
+        const derivedProof = await deriveProofMattr(vc, vaccineFrame2, {
+            suite: new BbsBlsSignatureProof2020(),
+            nonce: new Uint8Array(nonceBuffer),
+            documentLoader
+        });
+
+        let verified = await verifyMattr(derivedProof, {
+            suite: new BbsBlsSignatureProof2020(),
+            purpose: new purposes.AssertionProofPurpose(),
+            documentLoader
+        });
+        assert.isTrue(verified.verified);
+    })    
+
+    it('failing case: verify with Aries', async function () {
+        const vc = JSON.parse(fs.readFileSync("data/failing.json", 'utf-8'));
+
+        await verifyProofAries(keyPair3Options.publicKeyBase58, JSON.stringify(vc));
+    })    
+
+    it('failing case: verify with Mattr', async function () {
+        const vc = JSON.parse(fs.readFileSync("data/failing.json", 'utf-8'));
+
+        let verified = await verifyMattr(vc, {
+            suite: new BbsBlsSignatureProof2020(),
+            purpose: new purposes.AssertionProofPurpose(),
+            documentLoader
+        });
+
+        assert.isTrue(verified.verified);
+    })    
+
 })
 
 function sleep(ms) {

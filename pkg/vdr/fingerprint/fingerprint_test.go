@@ -156,3 +156,12 @@ func TestDIDKeyEd25519(t *testing.T) {
 	require.Equal(t, k1Base58, base58.Encode(pubKey))
 	require.NoError(t, err)
 }
+
+func TestExtract(t *testing.T) {
+	const k = "did:key:zUC72trFXko7eccfAeLJHQwJT7wjVuTkfjbTfmDsLfyQEevrQtrWAe3pvc63xH2LsxbqpBAi6T4fdEpfQMmLDL148zZaY6eEbTmK2SaEQsvvQppas93pXs1GgazkSgemnGTWbWJ"
+	kBytes, err := PubKeyFromDIDKey(k)
+	require.NoError(t, err)
+
+	k58 := base58.Encode(kBytes)
+	t.Log(k58)
+}
