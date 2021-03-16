@@ -165,3 +165,12 @@ func TestExtract(t *testing.T) {
 	k58 := base58.Encode(kBytes)
 	t.Log(k58)
 }
+
+
+func TestCreate(t *testing.T) {
+	const k58 = "oqpWYKaZD9M1Kbe94BVXpr8WTdFBNZyKv48cziTiQUeuhm7sBhCABMyYG4kcMrseC68YTFFgyhiNeBKjzdKk9MiRWuLv5H4FFujQsQK2KTAtzU8qTBiZqBHMmnLF4PL7Ytu"
+	kBytes := base58.Decode(k58)
+
+	fingerprint := KeyFingerprint(BLS12381g2PubKeyMultiCodec, kBytes)
+	t.Log(fingerprint)
+}

@@ -1,0 +1,49 @@
+{
+    "@context": [
+        "https://www.w3.org/2018/credentials/v1",
+        "https://w3id.org/vaccination/v1",
+        "https://w3id.org/vc-revocation-list-2020/v1",
+        "https://w3id.org/security/bbs/v1"
+    ],
+    "credentialStatus": {
+        "id": "https://issuer.dev.trustbloc.dev/didkey-bbsblssignature2020-bls12381g2/status/1#12",
+        "revocationListCredential": "https://issuer.dev.trustbloc.dev/didkey-bbsblssignature2020-bls12381g2/status/1",
+        "revocationListIndex": "12",
+        "type": "RevocationList2020Status"
+    },
+    "credentialSubject": {
+        "administeringCentre": "FEMA",
+        "batchNumber": "1183738569",
+        "countryOfVaccination": "US",
+        "dateOfVaccination": "2021-02-01",
+        "healthProfessional": "FEMA",
+        "id": "did:trustbloc:4vSjd:EiALKiBxNs4Fq1J_IYfRQP23rQD9SGPqit1j1LMiXcs3_w",
+        "recipient": {
+            "birthDate": "1958-07-17",
+            "familyName": "Pasteur",
+            "gender": "Male",
+            "givenName": "Louis",
+            "type": "VaccineRecipient"
+        },
+        "type": "VaccinationEvent",
+        "vaccine": {
+            "atcCode": "J07BX03",
+            "disease": "COVID-19",
+            "marketingAuthorizationHolder": "Moderna Biotech",
+            "medicinalProductName": "COVID-19 Vaccine Moderna",
+            "type": "Vaccine"
+        }
+    },
+    "description": "COVID-19 Vaccination Certificate for Mr.Louis Pasteur",
+    "id": "http://example.com/c24b0837-f37c-4eb6-a7eb-b1273956f4bf",
+    "issuanceDate": "2021-03-16T16:53:29.947051983Z",
+    "issuer": {
+        "id": "did:key:zUC73gNPc1EnZmDDjYJzE8Bk89VRhuZPQYXFnSiSUZvX9N1i7N5VtMbJyowDR46rtARHLJYRVf7WMbGLb43s9tfTyKF9KFF22vBjXZRomcwtoQJmMNUSY7tfzyhLEy58dwUz3WD",
+        "name": "didkey-bbsblssignature2020-bls12381g2"
+    },
+    "name": "COVID-19 Vaccination Certificate",
+    "type": [
+        "VerifiableCredential",
+        "VaccinationCertificate"
+    ]
+}
