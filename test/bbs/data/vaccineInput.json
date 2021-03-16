@@ -1,49 +1,43 @@
 {
     "@context": [
-        "https://www.w3.org/2018/credentials/v1",
-        "https://w3id.org/vaccination/v1",
-        "https://w3id.org/vc-revocation-list-2020/v1",
-        "https://w3id.org/security/bbs/v1"
+      "https://www.w3.org/2018/credentials/v1",
+      "https://w3id.org/security/bbs/v1",
+      "https://w3id.org/vaccination/v1"
     ],
-    "credentialStatus": {
-        "id": "https://issuer.dev.trustbloc.dev/didkey-bbsblssignature2020-bls12381g2/status/1#12",
-        "revocationListCredential": "https://issuer.dev.trustbloc.dev/didkey-bbsblssignature2020-bls12381g2/status/1",
-        "revocationListIndex": "12",
-        "type": "RevocationList2020Status"
-    },
     "credentialSubject": {
-        "administeringCentre": "FEMA",
-        "batchNumber": "1183738569",
-        "countryOfVaccination": "US",
-        "dateOfVaccination": "2021-02-01",
-        "healthProfessional": "FEMA",
-        "id": "did:trustbloc:4vSjd:EiALKiBxNs4Fq1J_IYfRQP23rQD9SGPqit1j1LMiXcs3_w",
-        "recipient": {
-            "birthDate": "1958-07-17",
-            "familyName": "Pasteur",
-            "gender": "Male",
-            "givenName": "Louis",
-            "type": "VaccineRecipient"
-        },
-        "type": "VaccinationEvent",
-        "vaccine": {
-            "atcCode": "J07BX03",
-            "disease": "COVID-19",
-            "marketingAuthorizationHolder": "Moderna Biotech",
-            "medicinalProductName": "COVID-19 Vaccine Moderna",
-            "type": "Vaccine"
-        }
+      "administeringCentre": "FEMA",
+      "batchNumber": "1183738569",
+      "countryOfVaccination": "US",
+      "dateOfVaccination": "2021-02-01",
+      "healthProfessional": "FEMA",
+      "id": "did:key:z6MknbvvxApNNLmhZV8JZXsoXcppnaF2dgG4bqN5Xi74Pisq",
+      "recipient": {
+        "birthDate": "1978-08-17",
+        "familyName": "PASTEUR",
+        "gender": "Male",
+        "givenName": "LOUIS",
+        "type": "VaccineRecipient"
+      },
+      "type": "VaccinationEvent",
+      "vaccine": {
+        "atcCode": "J07BX03",
+        "disease": "COVID-19",
+        "marketingAuthorizationHolder": "Moderna Biotech",
+        "medicinalProductName": "COVID-19 Vaccine Moderna",
+        "type": "Vaccine"
+      }
     },
-    "description": "COVID-19 Vaccination Certificate for Mr.Louis Pasteur",
-    "id": "http://example.com/c24b0837-f37c-4eb6-a7eb-b1273956f4bf",
-    "issuanceDate": "2021-03-16T16:53:29.947051983Z",
+    "description": "COVID-19 Vaccination Certificate",
+    "expirationDate": "2029-12-03T12:19:52Z",
+    "id": "urn:uuid:52666d8a-025b-4a87-8960-d20b6bdd5ebb",
+    "issuanceDate": "2019-12-03T12:19:52Z",
     "issuer": {
-        "id": "did:key:zUC73gNPc1EnZmDDjYJzE8Bk89VRhuZPQYXFnSiSUZvX9N1i7N5VtMbJyowDR46rtARHLJYRVf7WMbGLb43s9tfTyKF9KFF22vBjXZRomcwtoQJmMNUSY7tfzyhLEy58dwUz3WD",
-        "name": "didkey-bbsblssignature2020-bls12381g2"
+      "id": "did:key:zUC73gNPc1EnZmDDjYJzE8Bk89VRhuZPQYXFnSiSUZvX9N1i7N5VtMbJyowDR46rtARHLJYRVf7WMbGLb43s9tfTyKF9KFF22vBjXZRomcwtoQJmMNUSY7tfzyhLEy58dwUz3WD",
+      "image": "data:image/png;base64,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"
     },
     "name": "COVID-19 Vaccination Certificate",
     "type": [
-        "VerifiableCredential",
-        "VaccinationCertificate"
+      "VerifiableCredential",
+      "VaccinationCertificate"
     ]
 }
