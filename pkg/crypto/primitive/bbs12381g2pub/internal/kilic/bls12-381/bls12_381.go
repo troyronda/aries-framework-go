@@ -1,5 +1,5 @@
 /*
-Taken from https://github.com/kilic/bls12-381/blob/master/arithmetic_fallback.go
+Taken from https://github.com/kilic/bls12-381/blob/master/bls12_381.go
 (rev a288617c07f1bd60613c43dbde211b4a911e4791)
 
 SPDX-License-Identifier: Apache-2.0
